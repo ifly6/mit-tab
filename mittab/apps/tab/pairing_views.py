@@ -509,6 +509,7 @@ def confirm_start_new_tourny(request):
                                'confirm_text': "Create New Tournament"},
                                context_instance=RequestContext(request))
 
+#TODO: Unify this with initialize_tourney
 @permission_required('tab.tab_settings.can_change', login_url="/403/")
 def start_new_tourny(request):
     try:
@@ -519,8 +520,6 @@ def start_new_tourny(request):
         TabSettings.set("var_teams_to_break", 8)
         TabSettings.set("nov_teams_to_break", 4)
         TabSettings.set("lenient_late", 0)
-
-
     except Exception as e:
         return render_to_response('error.html',
                             {'error_type': "Could not Start Tournament",

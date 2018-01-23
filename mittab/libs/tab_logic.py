@@ -65,7 +65,7 @@ def pair_round():
 
     # If it is the first round, pair by *seed*
     if current_round == 1:
-        list_of_teams = list(Team.objects.filter(checked_in=True))
+        list_of_teams = list(Team.checked_in())
 
         # If there are an odd number of teams, give a random team the bye
         if len(list_of_teams) % 2 == 1:
@@ -90,7 +90,7 @@ def pair_round():
         # NOTE: We do not bucket teams that have only won by
         #       forfeit/bye/lenient_late in every round because they have no speaks
         middle_of_bracket = middle_of_bracket_teams()
-        all_checked_in_teams = Team.objects.filter(checked_in=True)
+        all_checked_in_teams = Team.checked_in()
         normal_pairing_teams = all_checked_in_teams.exclude(pk__in=map(lambda t: t.id, middle_of_bracket))
 
         team_buckets = [ (tot_wins(team), team) for team in normal_pairing_teams ]
@@ -154,7 +154,7 @@ def pair_round():
                             #after adding pull-up to new bracket and deleting from old, sort again by speaks making sure to leave any first
                             #round bye in the correct spot
                             removed_teams = []
-                            for t in list(Team.objects.filter(checked_in=True)):
+                            for t in list(Team.checked_in()):
                                 #They have all wins and they haven't forfeited so they need to get paired in
                                 if t in middle_of_bracket and tot_wins(t) == bracket:
                                     removed_teams += [t]
@@ -227,14 +227,14 @@ def pair_round():
 
 def have_enough_judges(round_to_check):
     last_round = round_to_check - 1
-    future_rounds = Team.objects.filter(checked_in=True).count() / 2
+    future_rounds = Team.checked_in().count() / 2
     num_judges = CheckIn.objects.filter(round_number=round_to_check).count()
     if num_judges < future_rounds:
         return False, (num_judges, future_rounds)
     return True, (num_judges, future_rounds)
 
 def have_enough_rooms(round_to_check):
-    future_rounds = Team.objects.filter(checked_in=True).count() / 2
+    future_rounds = Team.checked_in().count() / 2
     num_rooms = Room.objects.filter(rank__gt=0).count()
     if num_rooms < future_rounds:
         return False, (num_rooms, future_rounds)
@@ -422,7 +422,7 @@ def middle_of_bracket_teams():
     should be paired into the middle of their bracket. Randomized for fairness
     """
     teams = [] # TODO: Make this more efficient. Try to use a SQL query
-    for team in Team.objects.filter(checked_in=True):
+    for team in Team.checked_in():
         avg_speaks_rounds = Bye.objects.filter(bye_team=team).count()
         avg_speaks_rounds += NoShow.objects.filter(no_show_team=team, lenient_late=True).count()
         avg_speaks_rounds += num_forfeit_wins(team)

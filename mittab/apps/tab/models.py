@@ -96,6 +96,10 @@ class Team(models.Model):
             s.delete()
         super(Team, self).delete()
 
+    @classmethod
+    def checked_in(cls):
+        return cls.objects.filter(checked_in=True)
+
 
 class Judge(models.Model):
     name = models.CharField(max_length=30, unique = True)

@@ -281,9 +281,9 @@ def view_round(request, round_number, errors = None):
     round_info = [pair for pair in round_pairing]
 
     paired_teams = [team.gov_team for team in round_pairing] + [team.opp_team for team in round_pairing]
-    n_over_two = Team.objects.filter(checked_in=True).count() / 2
+    n_over_two = Team.checked_in().count() / 2
     valid_pairing = len(round_pairing) >= n_over_two or round_number == 0
-    for present_team in Team.objects.filter(checked_in=True):
+    for present_team in Team.checked_in():
         if not (present_team in paired_teams):
             errors.append("%s was not in the pairing" % (present_team))
             byes.append(present_team)
@@ -387,7 +387,7 @@ def pretty_pair(request, printable=False):
     byes = [bye.bye_team for bye in Bye.objects.filter(round_number=round_number)]
 
     print "getting errors"
-    for present_team in Team.objects.filter(checked_in=True):
+    for present_team in Team.checked_in():
         if not (present_team in paired_teams):
             if present_team not in byes:
                 print "got error for", present_team
